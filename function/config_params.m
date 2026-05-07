@@ -16,11 +16,12 @@ function params = config_params()
 params = struct();
 
 %% ========== TIFF生成控制参数 ==========
-params.tiff.make_tiff = 0;        % 1: 生成TIFF文件; 0: 不生成
-params.tiff.tiff_frame = 10;     % 要提取的帧号(默认160，即中间帧)
+params.tiff.make_tiff = 1;        % 1: 生成TIFF文件; 0: 不生成
+params.tiff.tiff_frame = 35;     % 要提取的帧号(默认160，即中间帧)
 params.tiff.saveDicom = 1;        % 是否保存DICOM文件 (1:保存, 0:不保存)
 
 %% ========== 低质量DCM生成设置 ==========
+params.generate_dcm = 1;
 params.tiff.save_low_quality_dcm = 0;  % 是否同时生成低质量DCM文件用于快速浏览 (1:生成, 0:不生成)
 params.tiff.low_quality_scale = 0.5;   % 低质量DCM缩放因子 (0.5表示缩小到50%，体积约为原始的25%)
 
@@ -37,7 +38,7 @@ params.processing.enable_flatten_enface = 1;   % 1: 启用展平并保存展平�
 params.processing.enable_enface_noflat = 0;    % 1: 生成非展平En-face切片（直接从原始数据切片）, 0: 禁用
 params.processing.max_frames = 0;              % 最大处理帧数 (0:处理所有帧, >0:限制帧数)
 params.range.setZrg = 0;
-params.parallel.batchSize = 20;
+params.parallel.batchSize = 10;
 
 %% ========== 并行处理设置 ==========
 params.parallel.LocalUseMpiexec = false;       % 并行处理MPI设置
@@ -138,7 +139,7 @@ params.surface.smooth_window = 9;              % 平滑滤波窗口大小(减小
 %   2. 回退到下方 sclera_boundary_path 指定的路径
 %
 % 是否启用后巩膜边界处理 (1:启用, 0:禁用)
-params.files.use_sclera_boundary = 1;
+params.files.use_sclera_boundary = 0;
 
 % scaler_mat 子文件夹名称（相对于输入数据文件夹）
 params.files.sclera_mat_folder = 'scaler_mat';

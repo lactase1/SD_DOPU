@@ -13,14 +13,14 @@ clear; close all; clc;
 
 %% ==================== 1. 用户配置区域 ====================
 % --- 数据路径配置 ---
-input_root_dir = 'D:\1-Liu Jian\yongxin.wang\Output\Graph\Mat';
+input_root_dir = 'G:\1-Project\2023 王永鑫\Data\05_1310_redDisk';
 input_dir2 = '';  % 留空则自动搜索第二个方法
 
-output_dir = 'D:\1-Liu Jian\yongxin.wang\Output\Graph\Output';
+output_dir = 'G:\1-Project\2023 王永鑫\Data\05_1310_redDisk\Graph_res';
 if ~exist(output_dir, 'dir'), mkdir(output_dir); end
 
 method1_name = 'DDG';
-method2_name = 'SD-DOPU + Bayesian';
+method2_name = 'Bayesian optimization';
 
 % --- 几何与 ROI 配置 ---
 Disk_Center  = [252, 252]; % 圆心坐标 [X, Y] (图像列, 行)
@@ -209,6 +209,10 @@ fprintf('生成 Fig 10(d) 分布直方图...\n');
 fig_d = figure('Name', 'Fig 10(d) Polar Histograms', 'Color', 'w', ...
     'Position', [100, 100, 1200, 600]);
 
+% 线型/标记区分（适配黑白打印）
+m1_style = struct('LineStyle', '-',  'Marker', 'o', 'Color', [0 0 0]);
+m2_style = struct('LineStyle', '--', 'Marker', '^', 'Color', [0.5 0.5 0.5]);
+
 edges = 0:5:180;
 theta_centers = deg2rad((edges(1:end-1) + edges(2:end)) / 2);
 rows_d = 2; cols_d = ceil(num_regions / 2);
@@ -233,18 +237,22 @@ for i = 1:num_regions
     if max_rho <= 0, max_rho = 1e-6; end
     sfac = 0.9 / max_rho;
 
-    % 绘制 Method 1（黑线 + 星号）
+    % 绘制 Method 1（黑线 + 圆点）
     c1_scaled = counts1 * sfac;
     [x1, y1] = pol2cart(theta_centers, c1_scaled);
     x1 = [0, x1, 0]; y1 = [0, y1, 0];
-    plot(ax, x1, y1, '-*k', 'LineWidth', 1.5, 'MarkerSize', 6);
+    plot(ax, x1, y1, 'LineStyle', m1_style.LineStyle, 'Marker', m1_style.Marker, ...
+        'Color', m1_style.Color, 'LineWidth', 1.5, 'MarkerSize', 4, ...
+        'MarkerFaceColor', m1_style.Color);
 
-    % 绘制 Method 2（灰线 + 星号）
+    % 绘制 Method 2（灰虚线 + 方块）
     if has_method2
         c2_scaled = counts2 * sfac;
         [x2, y2] = pol2cart(theta_centers, c2_scaled);
         x2 = [0, x2, 0]; y2 = [0, y2, 0];
-        plot(ax, x2, y2, '-*', 'Color', [0.5 0.5 0.5], 'LineWidth', 1.5, 'MarkerSize', 6);
+        plot(ax, x2, y2, 'LineStyle', m2_style.LineStyle, 'Marker', m2_style.Marker, ...
+            'Color', m2_style.Color, 'LineWidth', 1.5, 'MarkerSize', 4, ...
+            'MarkerFaceColor', m2_style.Color);
     end
 
     title(ax, Regions{i,1}, 'FontSize', 12, 'FontWeight', 'bold');
@@ -264,9 +272,13 @@ for i = 1:num_regions
     set(ax2, 'XTick', [], 'YTick', [], 'XColor', 'none', 'YColor', 'none', 'Color', 'w');
     draw_half_color_wheel(ax2);
     % repeat plotting for this one region
-    plot(ax2, x1, y1, '-*k', 'LineWidth', 1.5, 'MarkerSize', 6);
+    plot(ax2, x1, y1, 'LineStyle', m1_style.LineStyle, 'Marker', m1_style.Marker, ...
+        'Color', m1_style.Color, 'LineWidth', 1.5, 'MarkerSize', 4, ...
+        'MarkerFaceColor', m1_style.Color);
     if has_method2
-        plot(ax2, x2, y2, '-*', 'Color', [0.5 0.5 0.5], 'LineWidth', 1.5, 'MarkerSize', 6);
+        plot(ax2, x2, y2, 'LineStyle', m2_style.LineStyle, 'Marker', m2_style.Marker, ...
+            'Color', m2_style.Color, 'LineWidth', 1.5, 'MarkerSize', 4, ...
+            'MarkerFaceColor', m2_style.Color);
     end
     title(ax2, Regions{i,1}, 'FontSize', 12, 'FontWeight', 'bold');
     xlim(ax2, [-1.1 1.1]); ylim(ax2, [-0.1 1.1]);
@@ -281,11 +293,22 @@ for i = 1:num_regions
 end
 
 sgtitle('Fig 10(d) OA Distribution Histograms', 'FontWeight', 'bold', 'FontSize', 14);
-annotation('textbox', [0.3 0.01 0.2 0.05], 'String', ['-*- ' method1_name], ...
-    'EdgeColor', 'none', 'Color', 'k', 'FontWeight', 'bold');
+% 使用真实线型+标记的图例（避免文本符号显示异常）
+ax_leg = axes('Parent', fig_d, 'Position', [0 0 1 1], 'Visible', 'off');
+hold(ax_leg, 'on');
+h_leg1 = plot(ax_leg, NaN, NaN, 'LineStyle', m1_style.LineStyle, 'Marker', m1_style.Marker, ...
+    'Color', m1_style.Color, 'LineWidth', 2, 'MarkerSize', 6, ...
+    'MarkerFaceColor', m1_style.Color);
 if has_method2
-    annotation('textbox', [0.6 0.01 0.2 0.05], 'String', ['-*- ' method2_name], ...
-        'EdgeColor', 'none', 'Color', [0.5 0.5 0.5], 'FontWeight', 'bold');
+    h_leg2 = plot(ax_leg, NaN, NaN, 'LineStyle', m2_style.LineStyle, 'Marker', m2_style.Marker, ...
+        'Color', m2_style.Color, 'LineWidth', 2, 'MarkerSize', 6, ...
+        'MarkerFaceColor', m2_style.Color);
+    legend([h_leg1, h_leg2], {method1_name, method2_name}, ...
+        'Location', 'southoutside', 'Orientation', 'horizontal', ...
+        'FontSize', 16, 'FontWeight', 'bold', 'Box', 'off');
+else
+    legend(h_leg1, method1_name, 'Location', 'southoutside', ...
+        'FontSize', 16, 'FontWeight', 'bold', 'Box', 'off');
 end
 
 saveas(fig_d, fullfile(output_dir, 'Fig10_d_Polar_Histograms.png'));

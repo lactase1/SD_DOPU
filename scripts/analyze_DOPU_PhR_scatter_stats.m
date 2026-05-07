@@ -21,8 +21,8 @@ function analyze_DOPU_PhR_scatter_stats(data_dir, save_dir, target_Z, data_dir2,
 %
 % Output file: <PhR_filename>_frame_<Z>_DOPU_PhR_Correlation.png
 
-if nargin < 1 || isempty(data_dir), data_dir = 'D:\1-Liu Jian\yongxin.wang\Output\Graph\Mat'; end
-if nargin < 2 || isempty(save_dir), save_dir = 'D:\1-Liu Jian\yongxin.wang\Output\Graph\Output'; end
+if nargin < 1 || isempty(data_dir), data_dir = 'G:\1-Project\2023 王永鑫\Data\05_1310_redDisk'; end
+if nargin < 2 || isempty(save_dir), save_dir = 'G:\1-Project\2023 王永鑫\Data\05_1310_redDisk\Graph_res'; end
 if nargin < 3 || isempty(target_Z), target_Z = 50; end  % 与 tiff_frame=10 保持一致
 if nargin < 4, data_dir2 = ''; end
 % 方法名称 (用于图例和标注)
@@ -127,18 +127,22 @@ pointColor_1 = [1.00, 0.65, 0.65];     % pale red
 lineColor_2  = [0.05, 0.30, 0.85];     % strong blue
 pointColor_2 = [0.65, 0.78, 1.00];     % pale blue
 
+% 线型/标记区分（适配黑白打印）
+m1_style = struct('LineStyle', '-',  'Marker', 'o');
+m2_style = struct('LineStyle', '--', 'Marker', 's');
+
 markerSize = 3;
 markerAlpha = 0.45;
 maxScatter = 5000;
 
 % --- Scatter + regression: Method 1 ---
 hLine_1 = plot_scatter_fit_local(vec_DOPU_1, vec_PhR_1, pointColor_1, lineColor_1, ...
-    markerSize, markerAlpha, maxScatter, fit_1);
+    markerSize, markerAlpha, maxScatter, fit_1, m1_style.Marker, m1_style.LineStyle);
 
 % --- Scatter + regression: Method 2 ---
 if has_method2
     hLine_2 = plot_scatter_fit_local(vec_DOPU_2, vec_PhR_2, pointColor_2, lineColor_2, ...
-        markerSize, markerAlpha, maxScatter, fit_2);
+    markerSize, markerAlpha, maxScatter, fit_2, m2_style.Marker, m2_style.LineStyle);
 end
 
 % Axis labels and title
@@ -316,18 +320,18 @@ function [r, p_val, fit_coeff, k, b, R2] = compute_corr_stats_local(vec_DOPU, ve
     R2 = r^2;
 end
 
-function hLine = plot_scatter_fit_local(vec_DOPU, vec_PhR, pointColor, lineColor, markerSize, markerAlpha, maxScatter, fit_coeff)
+function hLine = plot_scatter_fit_local(vec_DOPU, vec_PhR, pointColor, lineColor, markerSize, markerAlpha, maxScatter, fit_coeff, markerType, lineStyle)
     N = numel(vec_DOPU);
     if N > maxScatter
         idx = randperm(N, maxScatter);
-        scatter(vec_DOPU(idx), vec_PhR(idx), markerSize, pointColor, 'filled', ...
+        scatter(vec_DOPU(idx), vec_PhR(idx), markerSize, pointColor, 'filled', 'Marker', markerType, ...
             'MarkerFaceAlpha', markerAlpha, 'MarkerEdgeAlpha', 0);
     else
-        scatter(vec_DOPU, vec_PhR, markerSize, pointColor, 'filled', ...
+        scatter(vec_DOPU, vec_PhR, markerSize, pointColor, 'filled', 'Marker', markerType, ...
             'MarkerFaceAlpha', markerAlpha, 'MarkerEdgeAlpha', 0);
     end
     xf = linspace(0, 1, 400);
-    hLine = plot(xf, polyval(fit_coeff, xf), 'Color', lineColor, 'LineWidth', 2.5);
+    hLine = plot(xf, polyval(fit_coeff, xf), 'Color', lineColor, 'LineWidth', 2.5, 'LineStyle', lineStyle);
 end
 
 function print_interpretation_local(r)

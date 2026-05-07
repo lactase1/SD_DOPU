@@ -17,7 +17,7 @@ clear; close all; clc;
 
 % 根目录（必需）：脚本将仅从此根目录递归查找方法数据
 % 示例：D:\1-Liu Jian\yongxin.wang\Output\Graph\Mat
-input_root_dir = 'D:\1-Liu Jian\yongxin.wang\Output\Graph\Mat';
+input_root_dir = 'G:\1-Project\2023 王永鑫\Data\05_1310_redDisk';
 
 % 输入目录 — Method 2 (留空 '' 则退化为单方法模式)
 input_dir2 = '';
@@ -27,7 +27,7 @@ method1_name = 'DDG';
 method2_name = 'SD-DOPU + Bayesian'; % 以前叫 SSDOPU++
 
 % 输出目录
-output_dir = 'D:\1-Liu Jian\yongxin.wang\Output\Graph\Output';
+output_dir = 'G:\1-Project\2023 王永鑫\Data\05_1310_redDisk\Graph_res';
 if ~exist(output_dir, 'dir'), mkdir(output_dir); end
 
 % === 切片参数 ===
@@ -143,6 +143,10 @@ Color_KDE_2  = [210, 80, 50] / 255;    % 深红橙
 % 公共
 Color_Mean_Line = [154, 153, 153] / 255;
 
+% 线型区分（适配黑白打印）
+m1_style = struct('LineStyle', '-');
+m2_style = struct('LineStyle', '--');
+
 % 创建画布
 fig = figure('Name', 'PhR Global Stability', 'Color', 'w', 'Position', [100, 100, 800, 600]);
 hold on;
@@ -150,11 +154,12 @@ hold on;
 % --- Method 1: 直方图 + KDE ---
 h1 = histogram(PhR_Values_1, 100, 'Normalization', 'pdf');
 h1.FaceColor = Color_Hist_1;
-h1.EdgeColor = 'none';
+h1.EdgeColor = 'k';
 h1.FaceAlpha = 0.5;
+h1.LineStyle = m1_style.LineStyle;
 
 [f1, xi1] = ksdensity(PhR_Values_1);
-hKDE_1 = plot(xi1, f1, 'Color', Color_KDE_1, 'LineWidth', 2.5);
+hKDE_1 = plot(xi1, f1, 'Color', Color_KDE_1, 'LineWidth', 2.5, 'LineStyle', m1_style.LineStyle);
 
 % ±1σ 区间 (Method 1)
 sigma_low_1 = Global_Mean_1 - Global_Std_1;
@@ -171,11 +176,12 @@ end
 if has_method2
     h2 = histogram(PhR_Values_2, 100, 'Normalization', 'pdf');
     h2.FaceColor = Color_Hist_2;
-    h2.EdgeColor = 'none';
+    h2.EdgeColor = 'k';
     h2.FaceAlpha = 0.5;
+    h2.LineStyle = m2_style.LineStyle;
     
     [f2, xi2] = ksdensity(PhR_Values_2);
-    hKDE_2 = plot(xi2, f2, 'Color', Color_KDE_2, 'LineWidth', 2.5);
+    hKDE_2 = plot(xi2, f2, 'Color', Color_KDE_2, 'LineWidth', 2.5, 'LineStyle', m2_style.LineStyle);
     
     % ±1σ 区间 (Method 2)
     sigma_low_2 = Global_Mean_2 - Global_Std_2;
