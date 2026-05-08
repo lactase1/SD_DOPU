@@ -19,9 +19,9 @@ if exist(function_path, 'dir')
 end
 
 % 设置数据路径
-data_path   = 'G:\1-Project\2023 王永鑫\Data\05_1310_redDisk';                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+data_path   = 'G:\1-Project\2023 王永鑫\Data\Rep';                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
 % σ * 6 + 1 // σ * 4 + 1
-output_base = 'G:\1-Project\2023 王永鑫\Data\05_1310_redDisk\Output\dopu_19layer_4_25';
+output_base = 'G:\1-Project\2023 王永鑫\Data\Rep\Output\ddg_3layer_3_19';
 if ~exist(data_path, 'dir')
     error(['数据路径不存在: ' data_path]);
 end
@@ -1020,6 +1020,101 @@ function rPSOCT_process_single_file(varargin)
         fprintf('======================================\n\n');
     end
     fclose all;
+
+    %% ========== 导出普通 B-Scan 统计数据 (.mat) ==========
+    if isfield(params, 'stats') && isfield(params.stats, 'export_bscan_mat') && params.stats.export_bscan_mat
+        fprintf('\n========== 开始导出普通 B-Scan 统计数据 ==========');
+        try
+            saved_bscan_files = {};
+
+            % 1) OA (cumLA) 物理量
+            if exist('cumLA_cfg1_avg', 'var') && ~isempty(cumLA_cfg1_avg)
+                oa_bscan_filename = fullfile(foutputdir, [name '_OA_bscan.mat']);
+                save(oa_bscan_filename, 'cumLA_cfg1_avg', '-v7.3');
+                file_info = dir(oa_bscan_filename);
+                file_size_mb = file_info.bytes / (1024^2);
+                fprintf('\n  保存成功: %s\n', oa_bscan_filename);
+                fprintf('  -> cumLA_cfg1_avg: [%d, %d, 3, %d] (OA, [Z,X,3,Y])\n', ...
+                    size(cumLA_cfg1_avg, 1), size(cumLA_cfg1_avg, 2), size(cumLA_cfg1_avg, 4));
+                saved_bscan_files{end+1} = struct('name', '_OA_bscan.mat', 'path', oa_bscan_filename, ...
+                    'size_mb', file_size_mb, 'description', 'OA phys (cumLA_cfg1_avg) [Z,X,3,Y]');
+            else
+                fprintf('\n  跳过 OA B-Scan (cumLA_cfg1_avg 不存在或为空)\n');
+            end
+
+            % 2) PhR 物理量
+            if exist('PhR_c_cfg1_avg', 'var') && ~isempty(PhR_c_cfg1_avg)
+                phr_bscan_filename = fullfile(foutputdir, [name '_PhR_bscan.mat']);
+                save(phr_bscan_filename, 'PhR_c_cfg1_avg', '-v7.3');
+                file_info = dir(phr_bscan_filename);
+                file_size_mb = file_info.bytes / (1024^2);
+                fprintf('  保存成功: %s\n', phr_bscan_filename);
+                fprintf('  -> PhR_c_cfg1_avg: [%d, %d, %d] (PhR, [Z,X,Y])\n', ...
+                    size(PhR_c_cfg1_avg, 1), size(PhR_c_cfg1_avg, 2), size(PhR_c_cfg1_avg, 3));
+                saved_bscan_files{end+1} = struct('name', '_PhR_bscan.mat', 'path', phr_bscan_filename, ...
+                    'size_mb', file_size_mb, 'description', 'PhR phys (PhR_c_cfg1_avg) [Z,X,Y]');
+            else
+                fprintf('  跳过 PhR B-Scan (PhR_c_cfg1_avg 不存在或为空)\n');
+            end
+
+            % 3) Metadata (DOPU + topLines)
+            metadata_vars = {};
+            if exist('dopu_splitSpectrum', 'var') && ~isempty(dopu_splitSpectrum)
+                metadata_vars{end+1} = 'dopu_splitSpectrum';
+                fprintf('  -> dopu_splitSpectrum: [%d, %d, %d] (SS-DOPU, [Z,X,Y])\n', ...
+                    size(dopu_splitSpectrum, 1), size(dopu_splitSpectrum, 2), size(dopu_splitSpectrum, 3));
+            else
+                fprintf('  -> 警告: dopu_splitSpectrum 不存在，跳过\n');
+            end
+
+            if exist('topLines', 'var') && ~isempty(topLines)
+                metadata_vars{end+1} = 'topLines';
+                fprintf('  -> topLines: [%d, %d] (表面边界数据)\n', size(topLines, 1), size(topLines, 2));
+            else
+                fprintf('  -> 警告: topLines 不存在，跳过\n');
+            end
+
+            if ~isempty(metadata_vars)
+                metadata_bscan_filename = fullfile(foutputdir, [name '_Metadata_bscan.mat']);
+                save(metadata_bscan_filename, metadata_vars{:}, '-v7.3');
+                file_info = dir(metadata_bscan_filename);
+                file_size_mb = file_info.bytes / (1024^2);
+                fprintf('  保存成功: %s\n', metadata_bscan_filename);
+                saved_bscan_files{end+1} = struct('name', '_Metadata_bscan.mat', 'path', metadata_bscan_filename, ...
+                    'size_mb', file_size_mb, 'description', 'Metadata (dopu_splitSpectrum + topLines)');
+            else
+                fprintf('  警告: 没有可用的 Metadata 变量，跳过保存。\n');
+            end
+
+            % 汇总日志
+            fprintf('\n========== 普通 B-Scan 统计数据导出完成 ==========');
+            if ~isempty(saved_bscan_files)
+                fprintf('\n成功生成 %d 个 B-Scan 文件:\n', length(saved_bscan_files));
+                total_size_mb = 0;
+                for i = 1:length(saved_bscan_files)
+                    file_struct = saved_bscan_files{i};
+                    fprintf('  [%d] %s\n', i, file_struct.name);
+                    fprintf('      路径: %s\n', file_struct.path);
+                    fprintf('      大小: %.2f MB\n', file_struct.size_mb);
+                    fprintf('      描述: %s\n', file_struct.description);
+                    total_size_mb = total_size_mb + file_struct.size_mb;
+                end
+                fprintf('总大小: %.2f MB (%.2f GB)\n', total_size_mb, total_size_mb / 1024);
+            else
+                fprintf('\n未生成任何 B-Scan 统计文件。\n');
+            end
+            fprintf('==============================================\n');
+        catch ME
+            fprintf('\n导出普通 B-Scan 统计数据时出错: %s\n', ME.message);
+            fprintf('错误堆栈:\n');
+            for k = 1:length(ME.stack)
+                fprintf('  文件: %s, 行: %d, 函数: %s\n', ME.stack(k).file, ME.stack(k).line, ME.stack(k).name);
+            end
+            fprintf('继续执行后续流程...\n');
+        end
+        fprintf('\n');
+    end
+
     %% save results: strus(flow),stokes,oac
     if params.tiff.saveDicom
         % 创建 dcm 子文件夹
