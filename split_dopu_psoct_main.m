@@ -19,9 +19,9 @@ if exist(function_path, 'dir')
 end
 
 % 设置数据路径
-data_path   = 'G:\1-Project\2023 王永鑫\Data\Rep';                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+data_path   = 'G:\1-Project\2023 王永鑫\Data\Disc\other';                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
 % σ * 6 + 1 // σ * 4 + 1
-output_base = 'G:\1-Project\2023 王永鑫\Data\Rep\Output\ddg_3layer_3_19';
+output_base = 'G:\1-Project\2023 王永鑫\Data\Disc\other\Output\ddg_3layer_3_13';
 if ~exist(data_path, 'dir')
     error(['数据路径不存在: ' data_path]);
 end

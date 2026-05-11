@@ -207,7 +207,7 @@ end
 % OA 角度是组织固有属性 (0-180 deg)，直方图无需旋转 Global_Ang_Offset
 fprintf('生成 Fig 10(d) 分布直方图...\n');
 fig_d = figure('Name', 'Fig 10(d) Polar Histograms', 'Color', 'w', ...
-    'Position', [100, 100, 1200, 600]);
+    'Position', [100, 100, 900, 1000]);
 
 % 线型/标记区分（适配黑白打印）
 m1_style = struct('LineStyle', '-',  'Marker', 'o', 'Color', [0 0 0]);
@@ -215,7 +215,8 @@ m2_style = struct('LineStyle', '--', 'Marker', '^', 'Color', [0.5 0.5 0.5]);
 
 edges = 0:5:180;
 theta_centers = deg2rad((edges(1:end-1) + edges(2:end)) / 2);
-rows_d = 2; cols_d = ceil(num_regions / 2);
+cols_d = 2;
+rows_d = ceil(num_regions / cols_d);
 
 for i = 1:num_regions
     ax = subplot(rows_d, cols_d, i);

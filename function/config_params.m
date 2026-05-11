@@ -102,7 +102,7 @@ params.filters.h1_sigma = 1.5;                % 高斯核1标准差 (降低以�
 params.filters.h1 = fspecial('gaussian', params.filters.h1_size, params.filters.h1_sigma);
 
 % 中尺度高斯核 (用于结构增强和背景平滑) - 背景优先
-params.filters.h2_size = [19 19];               % 高斯核2尺寸 (显著增大以平滑大尺度背景)
+params.filters.h2_size = [13 13];               % 高斯核2尺寸 (显著增大以平滑大尺度背景)
 params.filters.h2_sigma = 3;                  % 高斯核2标准差 (增大以抑制深层噪声)
 params.filters.h2 = fspecial('gaussian', params.filters.h2_size, params.filters.h2_sigma);
 

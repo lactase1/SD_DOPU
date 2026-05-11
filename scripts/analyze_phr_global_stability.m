@@ -24,7 +24,7 @@ input_dir2 = '';
 
 % 方法名称 (用于图例和标注)
 method1_name = 'DDG';
-method2_name = 'SD-DOPU + Bayesian'; % 以前叫 SSDOPU++
+method2_name = 'Bayesian optimization'; % 以前叫 SSDOPU++
 
 % 输出目录
 output_dir = 'G:\1-Project\2023 王永鑫\Data\05_1310_redDisk\Graph_res';

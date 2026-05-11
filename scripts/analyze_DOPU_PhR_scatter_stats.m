@@ -28,11 +28,11 @@ if nargin < 4, data_dir2 = ''; end
 % 方法名称 (用于图例和标注)
 % 默认值：与全局稳定性脚本保持同步
 % 方法1：DDG
-% 方法2：SD-DOPU + Bayesian (之前为 SSDOPU++)
+% 方法2：Bayesian optimization (之前为 SSDOPU++)
 if nargin < 5 || isempty(method1_name), method1_name = 'DDG'; else
     % 根据调用者覆盖，generic 名称下方会自动发现真实名称
 end
-if nargin < 6 || isempty(method2_name), method2_name = 'SD-DOPU + Bayesian'; else
+if nargin < 6 || isempty(method2_name), method2_name = 'Bayesian optimization'; else
     % allow caller to override; fall back to auto-discovery below if generic
 end
 
