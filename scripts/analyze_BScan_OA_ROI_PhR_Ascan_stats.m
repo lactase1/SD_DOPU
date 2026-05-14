@@ -662,11 +662,12 @@ function plot_oa_local_consistency_figure(local_std1, local_std2, oa_stats_m1, o
     colors = get_plot_colors();
     style = get_plot_style();
     fig = figure('Color', 'w', 'Position', [100 100 1320 600]);
-    tiledlayout(1, 2, 'Padding', 'loose', 'TileSpacing', 'loose');
 
     deg = char(176);
+    legend_colors = [colors.ddg; colors.bayes];
 
-    ax1 = nexttile;
+    % Use manual axes positions so large labels have fixed reserved space.
+    ax1 = axes('Parent', fig, 'Position', [0.12 0.22 0.38 0.66]);
     hold(ax1, 'on');
     if ~isempty(local_std1)
         histogram(ax1, local_std1, 'Normalization', 'pdf', 'FaceColor', colors.ddg, 'FaceAlpha', 0.15, 'EdgeColor', 'none');
@@ -679,30 +680,66 @@ function plot_oa_local_consistency_figure(local_std1, local_std2, oa_stats_m1, o
         plot(ax1, x2, y2, '--', 'Color', colors.bayes, 'LineWidth', style.line_width);
     end
     hold(ax1, 'off');
+
     xlabel(ax1, sprintf('Variability (%s)', deg), 'FontName', 'Times New Roman', 'FontSize', style.font_label, 'FontWeight', 'bold');
     ylabel(ax1, 'Probability density', 'FontName', 'Times New Roman', 'FontSize', style.font_label, 'FontWeight', 'bold');
     title(ax1, 'Local OA variability', 'FontName', 'Times New Roman', 'FontWeight', 'bold', 'FontSize', style.font_title);
     grid(ax1, 'on');
-    set(ax1, 'GridColor', colors.grid, 'FontName', 'Times New Roman', 'FontSize', style.font_tick, 'LineWidth', style.axis_linewidth, 'TickDir', 'in', 'FontWeight', 'bold');
-    legend_colors = [colors.ddg; colors.bayes];
+    set(ax1, 'GridColor', colors.grid, 'FontName', 'Times New Roman', 'FontSize', style.font_tick, ...
+        'LineWidth', style.axis_linewidth, 'TickDir', 'in', 'FontWeight', 'bold');
+
     export_legend_only({'-', '--'}, {'none', 'none'}, legend_colors, {name1, name2}, legend_density_path, 'northeast', style.font_legend);
 
-    ax2 = nexttile;
+    ax2 = axes('Parent', fig, 'Position', [0.62 0.22 0.34 0.66]);
     metrics = [oa_stats_m1.median_local_variability, oa_stats_m1.p90_local_variability, neigh_m1.mean_neighbor_change; ...
                oa_stats_m2.median_local_variability, oa_stats_m2.p90_local_variability, neigh_m2.mean_neighbor_change]';
+
     b = bar(ax2, metrics, 'grouped');
     b(1).FaceColor = colors.ddg;
     b(2).FaceColor = colors.bayes;
     b(1).EdgeColor = 'none';
     b(2).EdgeColor = 'none';
-    set(ax2, 'XTick', 1:3, 'XTickLabel', {'Median\nlocal variability', 'P90\nlocal variability', 'Mean neighbor\nchange'}, ...
-        'XTickLabelRotation', 0, 'XLim', [0.5 3.5]);
+
+    set(ax2, 'XTick', 1:3, ...
+        'XTickLabel', {'', '', ''}, ...
+        'XTickLabelRotation', 0, ...
+        'XLim', [0.5 3.5]);
+
     ylabel(ax2, sprintf('Degrees (%s)', deg), 'FontName', 'Times New Roman', 'FontSize', style.font_label, 'FontWeight', 'bold');
-    t2 = title(ax2, {'Core local consistency metrics'}, 'FontName', 'Times New Roman', 'FontWeight', 'bold', 'FontSize', style.font_title);
-    t2.Units = 'normalized';
-    t2.Position(2) = t2.Position(2) + 0.05;
+    title(ax2, 'Core local consistency metrics', 'FontName', 'Times New Roman', 'FontWeight', 'bold', 'FontSize', style.font_title);
+
     grid(ax2, 'on');
-    set(ax2, 'GridColor', colors.grid, 'FontName', 'Times New Roman', 'FontSize', style.font_tick, 'LineWidth', style.axis_linewidth, 'TickDir', 'in', 'FontWeight', 'bold');
+    set(ax2, 'GridColor', colors.grid, 'FontName', 'Times New Roman', 'FontSize', style.font_tick, ...
+        'LineWidth', style.axis_linewidth, 'TickDir', 'in', 'FontWeight', 'bold');
+
+    % Freeze Y limits before drawing manual labels, otherwise MATLAB may expand
+    % the axis to include the text below the x-axis.
+    yl = ylim(ax2);
+    ylim(ax2, yl);
+    yr = yl(2) - yl(1);
+
+    label_y1 = yl(1) - 0.045 * yr;
+    label_y2 = yl(1) - 0.115 * yr;
+
+    label_top = {'Median', 'P90', 'Mean'};
+    label_bottom = {'local \sigma', 'local \sigma', 'neighbor \Delta'};
+
+    text(ax2, 1:3, repmat(label_y1, 1, 3), label_top, ...
+        'FontName', 'Times New Roman', ...
+        'FontSize', style.font_tick, ...
+        'FontWeight', 'bold', ...
+        'HorizontalAlignment', 'center', ...
+        'VerticalAlignment', 'top', ...
+        'Clipping', 'off');
+
+    text(ax2, 1:3, repmat(label_y2, 1, 3), label_bottom, ...
+        'FontName', 'Times New Roman', ...
+        'FontSize', style.font_tick, ...
+        'FontWeight', 'bold', ...
+        'HorizontalAlignment', 'center', ...
+        'VerticalAlignment', 'top', ...
+        'Clipping', 'off');
+
     export_legend_only({'none', 'none'}, {'s', 's'}, legend_colors, {name1, name2}, legend_metrics_path, 'northwest', style.font_legend);
 
     exportgraphics(fig, out_path, 'Resolution', 600);
@@ -935,7 +972,7 @@ function colors = get_plot_colors()
 end
 
 function style = get_plot_style()
-    font_scale = 1.4;
+    font_scale = 1.2;
     style.font_title = round(20 * font_scale);
     style.font_label = round(18 * font_scale);
     style.font_tick = round(16 * font_scale);

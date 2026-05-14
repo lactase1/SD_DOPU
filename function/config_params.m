@@ -17,7 +17,7 @@ params = struct();
 
 %% ========== TIFF生成控制参数 ==========
 params.tiff.make_tiff = 1;        % 1: 生成TIFF文件; 0: 不生成
-params.tiff.tiff_frame = 35;     % 要提取的帧号(默认160，即中间帧)
+params.tiff.tiff_frame = 303;     % 要提取的帧号(默认160，即中间帧)
 params.tiff.saveDicom = 1;        % 是否保存DICOM文件 (1:保存, 0:不保存)
 
 %% ========== 低质量DCM生成设置 ==========
@@ -38,10 +38,10 @@ params.processing.enable_flatten_enface = 0;   % 1: 启用展平并保存展平�
 params.processing.enable_enface_noflat = 0;    % 1: 生成非展平En-face切片（直接从原始数据切片）, 0: 禁用
 params.processing.max_frames = 0;              % 最大处理帧数 (0:处理所有帧, >0:限制帧数)
 params.range.setZrg = 0;
-params.parallel.batchSize = 10;
+params.parallel.batchSize = 5;
 
 %% ========== 统计导出设置 ==========
-params.stats.export_bscan_mat = 1;  % 1: 导出普通 B-Scan 统计 mat; 0: 不导出
+params.stats.export_bscan_mat = 0;  % 1: 导出普通 B-Scan 统计 mat; 0: 不导出
 
 %% ========== 并行处理设置 ==========
 params.parallel.LocalUseMpiexec = false;       % 并行处理MPI设置
